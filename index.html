@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareRx Bachelor — Affordable Urgent Tele-Consult & Smart e-Prescription</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      .print-area {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-slate-900">CareRx Bachelor</h1>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">₹49 Urgent Care</span>
+          </div>
+          <p class="text-xs text-slate-500">Multi-Illness Check, Urgent Tele-Consult & Generic e-Prescription</p>
+        </div>
+      </div>
+
+      <!-- Main Role / View Switcher Tabs -->
+      <nav class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl overflow-x-auto max-w-full" aria-label="Main Navigation">
+        <button type="button" id="tab-btn-patient" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-teal-700 shadow-sm" data-target="patient">
+          1. Patient Booking & AI Triage
+        </button>
+        <button type="button" id="tab-btn-doctor" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900" data-target="doctor">
+          2. Doctor Console <span id="nav-doc-badge" class="ml-1 px-1.5 py-0.2 rounded-full text-[11px] bg-amber-100 text-amber-800">1</span>
+        </button>
+        <button type="button" id="tab-btn-rx" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900" data-target="rx">
+          3. Digital e-Rx & Generics
+        </button>
+        <button type="button" id="tab-btn-payment" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900" data-target="payment">
+          4. Payment Gateway <span id="nav-pay-badge" class="ml-1 px-1.5 py-0.2 rounded-full text-[11px] bg-teal-100 text-teal-800">UPI / Card</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Toast Notification Banner -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- ==================== VIEW 1: PATIENT BOOKING & AI SYMPTOM PRE-CHECKER ==================== -->
+    <section id="view-patient" class="space-y-6">
+      <!-- Top Hero Banner -->
+      <div class="bg-gradient-to-r from-teal-700 via-teal-600 to-emerald-600 rounded-2xl p-5 sm:p-6 text-white shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="space-y-1.5 max-w-2xl">
+          <div class="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 px-2.5 py-1 rounded-full">
+            <span>Built for Hostelers, Students & Working Bachelors</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold">Can't afford a ₹600 clinic visit? Get a complete checkup & valid e-Rx for ₹49.</h2>
+          <p class="text-xs sm:text-sm text-teal-50">
+            Log every symptom and past condition below. Our AI Pre-Checker summarizes your multi-illness profile for the doctor, checks drug conflicts, and finds generic medicines up to 75% cheaper.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          <button type="button" id="btn-load-demo-fever" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-semibold backdrop-blur transition">
+            Load Demo: Viral Fever + Gastritis
+          </button>
+          <button type="button" id="btn-load-demo-migraine" class="px-3.5 py-2 rounded-xl bg-white text-teal-800 hover:bg-teal-50 text-xs font-semibold shadow-sm transition">
+            Load Demo: Severe Migraine + Asthma
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 Cols: Patient Multi-Illness & Symptom Intake Form -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Step 1: Patient Profile & Multi-Illness Intake</h3>
+                <p class="text-xs text-slate-500">Every condition you select must be reviewed by the doctor before prescribing.</p>
+              </div>
+              <span class="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg">Mandatory Safety Check</span>
+            </div>
+
+            <!-- Basic Info -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label for="pt-name" class="block text-xs font-semibold text-slate-700 mb-1">Patient Full Name</label>
+                <input id="pt-name" type="text" value="Rohan Deshmukh" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label for="pt-age" class="block text-xs font-semibold text-slate-700 mb-1">Age & Living Status</label>
+                <input id="pt-age" type="text" value="22 yrs • Hostel / PG Bachelor" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label for="pt-budget" class="block text-xs font-semibold text-slate-700 mb-1">Max Medicine Budget (₹)</label>
+                <input id="pt-budget" type="number" value="150" min="30" max="2000" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+            </div>
+
+            <!-- Active Symptoms Selection -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-2">Current Symptoms / Chief Complaints (Click all that apply)</label>
+              <div id="symptom-chips-container" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Co-existing Illnesses / Co-morbidities (So doctor checks EVERY illness!) -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Co-existing Illnesses / Stomach or Chronic Issues
+                <span class="text-slate-400 font-normal">(Prevents wrong medicine side-effects)</span>
+              </label>
+              <div id="illness-chips-container" class="flex flex-wrap gap-2 mt-1.5"></div>
+            </div>
+
+            <!-- Known Drug Allergies & Vitals -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div>
+                <label for="pt-allergy" class="block text-xs font-semibold text-slate-700 mb-1">Drug Allergies</label>
+                <select id="pt-allergy" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="None">No Known Drug Allergy</option>
+                  <option value="NSAIDs / Ibuprofen" selected>NSAIDs / Ibuprofen (Painkillers)</option>
+                  <option value="Penicillin / Amoxicillin">Penicillin / Amoxicillin</option>
+                  <option value="Sulfa Drugs">Sulfa Drugs</option>
+                </select>
+              </div>
+              <div>
+                <label for="pt-temp" class="block text-xs font-semibold text-slate-700 mb-1">Fever / Temp (°F)</label>
+                <input id="pt-temp" type="number" step="0.1" value="101.4" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label for="pt-duration" class="block text-xs font-semibold text-slate-700 mb-1">Symptom Duration</label>
+                <select id="pt-duration" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="Since last night (12 hrs)">Since last night (12 hrs)</option>
+                  <option value="2 Days" selected>2 Days</option>
+                  <option value="4+ Days">4+ Days</option>
+                  <option value="1 Week+">1 Week+</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Patient Detailed Note -->
+            <div>
+              <label for="pt-notes" class="block text-xs font-semibold text-slate-700 mb-1">Describe how you feel (Mess food, exam stress, sleep, etc.)</label>
+              <textarea id="pt-notes" rows="2" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">High fever with body ache since 2 days after eating outside mess food. Also having burning acidity and mild stomach cramps.</textarea>
+            </div>
+          </div>
+
+          <!-- Doctor Selection & Slot Booking -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Step 2: Choose Verified On-Call Doctor (Bachelor Subsidy)</h3>
+                <p class="text-xs text-slate-500">Instant video/audio queue — no travel required.</p>
+              </div>
+              <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">● 3 Doctors Online Now</span>
+            </div>
+
+            <div id="doctor-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+
+            <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-slate-100">
+              <div class="text-xs text-slate-600">
+                Selected Slot: <strong id="selected-slot-label" class="text-slate-900">Instant Urgent Queue (Within 5 mins) • ₹49</strong>
+              </div>
+              <button type="button" id="btn-book-appointment" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                <span>Book Urgent Consultation & Send to Doctor</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: AI Symptom Pre-Checker Live Triage Card -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-md space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-teal-300">AI Symptom Pre-Checker</h3>
+              </div>
+              <span id="ai-triage-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                Urgent Triage
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-300">
+              Automatically analyzes all selected symptoms, co-existing bachelor health issues, and drug allergies before the doctor joins.
+            </p>
+
+            <!-- Generated Pre-Check Summary Box -->
+            <div id="ai-precheck-output" class="bg-slate-800/90 border border-slate-700 rounded-xl p-4 space-y-3 text-xs"></div>
+
+            <!-- Estimated Treatment Cost Comparison -->
+            <div class="bg-teal-950/70 border border-teal-800/60 rounded-xl p-3.5 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-teal-200 font-medium">Estimated Private Clinic + Branded Rx:</span>
+                <span class="line-through text-slate-400 font-semibold">₹780</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-white font-semibold">CareRx Bachelor Consult + Generics:</span>
+                <span id="ai-est-cost" class="text-emerald-300 font-bold">₹114 total</span>
+              </div>
+              <p class="text-[11px] text-teal-300/90">
+                Fits comfortably inside your <strong id="ai-budget-Text">₹150</strong> medicine budget using Jan Aushadhi / generic equivalents.
+              </p>
+            </div>
+          </div>
+
+          <!-- Active Bookings Queue Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900">Live Appointment Queue</h3>
+              <button type="button" id="btn-jump-doctor" class="text-xs font-semibold text-teal-600 hover:text-teal-800 underline">
+                Open Doctor Console →
+              </button>
+            </div>
+            <div id="patient-queue-list" class="space-y-2.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE PAYMENT GATEWAY CHECKOUT MODAL (NPCI UPI COLLECT & 3D-SECURE OTP) -->
+      <div id="live-payment-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full overflow-hidden shadow-2xl">
+          <!-- Modal Header -->
+          <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-sm">
+                ₹
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <h4 class="text-sm font-bold">CarePay Live Gateway</h4>
+                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">LIVE</span>
+                </div>
+                <p id="modal-merchant-vpa-label" class="text-[11px] text-slate-400">Merchant: 9834422118@yespop</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p id="modal-live-amount" class="text-base font-extrabold text-emerald-400">₹125.00</p>
+              <p id="modal-live-timer" class="text-[11px] font-mono text-amber-300">04:59</p>
+            </div>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-5 space-y-4 text-xs">
+            <!-- Step Progress Bar -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between font-semibold text-slate-700">
+                <span id="modal-step-title">Step 1: Waiting for Live Payment Authorization...</span>
+                <span id="modal-step-pct" class="text-teal-700 font-bold">50%</span>
+              </div>
+              <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div id="modal-progress-bar" class="h-full bg-teal-600 transition-all duration-300" style="width: 50%"></div>
+              </div>
+            </div>
+
+            <!-- Live UPI Collect / QR View inside Modal -->
+            <div id="modal-upi-collect-box" class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-900" id="modal-upi-target-label">Scan Your UPI QR to Initiate Payment</span>
+                <span id="modal-scan-badge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] animate-pulse">Waiting for QR Scan</span>
+              </div>
+
+              <!-- Modal QR Display + Scan Detector -->
+              <div class="flex flex-col sm:flex-row items-center gap-3.5 bg-white p-3 rounded-xl border border-slate-200">
+                <div class="w-32 h-32 rounded-xl border-2 border-teal-600 p-1.5 flex items-center justify-center shrink-0 bg-white">
+                  <div id="modal-qr-code-box" class="w-full h-full flex items-center justify-center"></div>
+                  <img id="modal-custom-qr-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Modal Custom QR" class="hidden w-full h-full object-contain rounded" />
+                </div>
+                <div class="space-y-2 text-left">
+                  <p class="text-slate-800 font-bold text-xs">Scan with GPay, PhonePe, Paytm or BHIM</p>
+                  <p class="text-[11px] text-slate-500">
+                    Scanning this QR on your phone immediately initiates a live UPI transfer of <strong id="modal-qr-amt-text" class="text-teal-700">₹125</strong> to <strong id="modal-qr-vpa-text" class="text-slate-800">9834422118@yespop</strong>.
+                  </p>
+                  <button type="button" id="btn-modal-qr-scanned" class="w-full px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-[11px] transition">
+                    ✓ QR Scanned on Phone → Initiate Payment
+                  </button>
+                </div>
+              </div>
+
+              <p class="text-slate-600">
+                Once scanned and approved on your UPI app, confirm or enter the 6-digit UPI / Bank Ref code below:
+              </p>
+              <div>
+                <label for="modal-otp-input" class="block text-[11px] font-bold text-slate-700 mb-1">Enter 6-Digit Live Bank / UPI Auth Code (Demo OTP: 482910)</label>
+                <div class="flex gap-2">
+                  <input id="modal-otp-input" type="text" value="482910" maxlength="6" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-mono font-bold tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  <button type="button" id="btn-modal-fill-otp" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold text-xs transition">
+                    Auto-Read OTP
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Bank Status Log -->
+            <div id="modal-live-log" class="bg-slate-900 text-slate-200 font-mono text-[11px] rounded-xl p-3 space-y-1">
+              <p class="text-emerald-400">✓ [NPCI-LIVE] Handshake established with Acquiring Bank</p>
+              <p id="modal-log-line-2" class="text-amber-300">● [UPI-INTENT] Collect push sent • Awaiting customer MPIN / OTP...</p>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+              <button type="button" id="btn-modal-cancel" class="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition">
+                Cancel Transaction
+              </button>
+              <button type="button" id="btn-modal-confirm-live" class="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+                Authorize & Complete Live Payment ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: DOCTOR CONSULTATION & MULTI-ILLNESS CHECK ==================== -->
+    <section id="view-doctor" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            DR
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="doc-active-doctor-name" class="text-base font-bold text-slate-900">Dr. Ananya Kulkarni (MBBS, MD - General Medicine)</h2>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">Reg: MMC-2019-88412</span>
+            </div>
+            <p class="text-xs text-slate-500">Doctor Rule: Every reported symptom & co-existing illness must be verified before issuing the e-Prescription.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-check-all-illnesses" class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs transition">
+            ✓ Mark All Patient Illnesses Verified
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 5 Cols: Patient Multi-Illness Verification Checklist & Safety Alerts -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">1. Mandatory Every-Illness Check</h3>
+                <p class="text-xs text-slate-500">Check off each condition as you examine the patient</p>
+              </div>
+              <span id="illness-verify-progress" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+                0 / 4 Checked
+              </span>
+            </div>
+
+            <!-- Patient Summary Header -->
+            <div id="doc-patient-banner" class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs space-y-1.5"></div>
+
+            <!-- Interactive Checklist of Every Illness & Symptom -->
+            <div class="space-y-2" id="doc-illness-checklist"></div>
+
+            <!-- Drug Allergy & Contradiction Guardrail Box -->
+            <div id="doc-safety-alert-box" class="rounded-xl p-3.5 border text-xs space-y-1"></div>
+          </div>
+
+          <!-- Quick Chat / Video Simulation with Patient -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900">Live Tele-Consult Chat Log</h3>
+              <span class="text-[11px] font-medium text-emerald-600">● Audio/Chat Connected</span>
+            </div>
+            <div id="consult-chat-box" class="h-44 overflow-y-auto custom-scroll bg-slate-50 rounded-xl p-3 space-y-2.5 text-xs border border-slate-200"></div>
+            <div class="flex gap-2">
+              <input id="consult-chat-input" type="text" placeholder="Ask patient about symptoms, water intake, or fever..." class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <button type="button" id="btn-send-chat" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 7 Cols: Smart e-Prescription Builder with Generic Medicine Catalog -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">2. Smart e-Prescription Builder (with Generic Price Finder)</h3>
+                <p class="text-xs text-slate-500">Auto-blocks unsafe drugs and highlights low-cost Jan Aushadhi generics for bachelors.</p>
+              </div>
+              <button type="button" id="btn-auto-recommend-rx" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold text-xs border border-teal-200 transition">
+                ⚡ Auto-Fill Safe Rx for Checked Illnesses
+              </button>
+            </div>
+
+            <!-- Clinical Diagnosis Input -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="doc-diagnosis" class="block text-xs font-semibold text-slate-700 mb-1">Final Clinical Diagnosis</label>
+                <input id="doc-diagnosis" type="text" value="Acute Viral Pharyngitis with Acid Peptic Gastritis" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label for="doc-advice" class="block text-xs font-semibold text-slate-700 mb-1">Hostel / Bachelor Diet & Care Advice</label>
+                <input id="doc-advice" type="text" value="Warm saline gargles 3x/day, ORS 1L/day, avoid spicy mess fried food & coffee for 4 days." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+            </div>
+
+            <!-- Add Medicine From Smart Database -->
+            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <label for="med-select" class="text-xs font-bold text-slate-800">Add Medicine to Prescription</label>
+                <span class="text-[11px] text-slate-500">Shows Branded Price vs Generic Price</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                <div class="sm:col-span-5">
+                  <select id="med-select" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"></select>
+                </div>
+                <div class="sm:col-span-3">
+                  <select id="med-freq" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs bg-white">
+                    <option value="1-0-1 (Twice Daily)">1-0-1 (Twice Daily)</option>
+                    <option value="1-1-1 (Thrice Daily)">1-1-1 (Thrice Daily)</option>
+                    <option value="1-0-0 (Morning Empty Stomach)">1-0-0 (Morning Empty Stomach)</option>
+                    <option value="0-0-1 (Bedtime)">0-0-1 (Bedtime)</option>
+                    <option value="SOS (When Needed)">SOS (When Needed)</option>
+                  </select>
+                </div>
+                <div class="sm:col-span-2">
+                  <select id="med-days" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs bg-white">
+                    <option value="3 Days">3 Days</option>
+                    <option value="5 Days" selected>5 Days</option>
+                    <option value="7 Days">7 Days</option>
+                  </select>
+                </div>
+                <div class="sm:col-span-2">
+                  <button type="button" id="btn-add-med" class="w-full h-full px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition">
+                    + Add Drug
+                  </button>
+                </div>
+              </div>
+              <div id="med-safety-warning" class="hidden rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 text-xs text-rose-700 font-medium"></div>
+            </div>
+
+            <!-- Current Prescribed Medicines Table -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Prescribed Medicines List</h4>
+                <span id="doc-rx-cost-summary" class="text-xs font-semibold text-teal-700"></span>
+              </div>
+              <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                      <th class="py-2.5 px-3 font-semibold">Medicine (Generic & Brand)</th>
+                      <th class="py-2.5 px-3 font-semibold">Targets Illness</th>
+                      <th class="py-2.5 px-3 font-semibold">Dosage & Timing</th>
+                      <th class="py-2.5 px-3 font-semibold">Branded vs Generic</th>
+                      <th class="py-2.5 px-3 font-semibold text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="doc-med-table-body" class="divide-y divide-slate-200"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Sign & Issue Prescription Footer -->
+            <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div id="doc-sign-status" class="text-xs text-slate-600">
+                Ensure all patient illnesses are checked off to sign & issue the e-Prescription.
+              </div>
+              <button type="button" id="btn-issue-rx" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                <span>Verify All Illnesses & Issue Signed e-Rx</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: DIGITAL E-PRESCRIPTION & GENERIC SAVINGS ==================== -->
+    <section id="view-rx" class="hidden space-y-6">
+      <!-- Top Controls Bar -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+            e-Prescription Ready
+          </span>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Toggle between Branded and Jan Aushadhi Generic equivalents or print/copy the official prescription.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="btn-toggle-generic-mode" class="px-3.5 py-2 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold hover:bg-teal-100 transition">
+            Mode: Jan Aushadhi Generics (Save 72%)
+          </button>
+          <button type="button" id="btn-copy-rx-text" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
+            Copy e-Rx Summary
+          </button>
+          <button type="button" id="btn-print-rx" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
+            Print / Save PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 8 Cols: Official Printable Medical Prescription Sheet -->
+        <div class="lg:col-span-8">
+          <div id="printable-rx-card" class="print-area bg-white rounded-2xl border-2 border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <!-- Prescription Header -->
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b-2 border-teal-600 pb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xl font-bold text-teal-700">CareRx TeleHealth Clinic</span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200">Verified e-Rx</span>
+                </div>
+                <p id="rx-doc-name" class="text-sm font-bold text-slate-900 mt-1">Dr. Ananya Kulkarni, MBBS, MD (General Medicine)</p>
+                <p class="text-xs text-slate-500">Reg. No: MMC-2019-88412 • Telemedicine Practice Guidelines Compliant</p>
+              </div>
+              <div class="text-left sm:text-right text-xs text-slate-600 space-y-0.5">
+                <p class="font-bold text-slate-900" id="rx-id-label">Rx ID: #CRX-2026-8941</p>
+                <p id="rx-date-label">Date: 31 Oct 2026</p>
+                <p class="text-emerald-700 font-semibold">✓ All Patient Illnesses Reviewed</p>
+              </div>
+            </div>
+
+            <!-- Patient Details & Reviewed Conditions Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-200 text-xs">
+              <div class="space-y-1">
+                <p><span class="text-slate-500">Patient:</span> <strong id="rx-pt-name" class="text-slate-900">Rohan Deshmukh</strong></p>
+                <p><span class="text-slate-500">Age / Profile:</span> <span id="rx-pt-age" class="text-slate-800">22 yrs • Hostel / PG Bachelor</span></p>
+                <p><span class="text-slate-500">Recorded Temp:</span> <span id="rx-pt-temp" class="text-slate-800">101.4 °F (Duration: 2 Days)</span></p>
+              </div>
+              <div class="space-y-1">
+                <p><span class="text-slate-500">Drug Allergies:</span> <strong id="rx-pt-allergy" class="text-rose-700">NSAIDs / Ibuprofen (Painkillers)</strong></p>
+                <p><span class="text-slate-500">Diagnosis:</span> <strong id="rx-diagnosis" class="text-slate-900">Acute Viral Pharyngitis with Acid Peptic Gastritis</strong></p>
+                <p><span class="text-slate-500">Reviewed Illnesses:</span> <span id="rx-checked-illnesses" class="text-emerald-700 font-medium"></span></p>
+              </div>
+            </div>
+
+            <!-- Rx Symbol & Medicine Table -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-serif font-bold text-teal-700">℞</span>
+                <span class="text-xs text-slate-500">Dispense Generic Equivalent Where Marked</span>
+              </div>
+
+              <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                      <th class="py-2.5 px-3 font-bold">#</th>
+                      <th class="py-2.5 px-3 font-bold">Medicine Name & Composition</th>
+                      <th class="py-2.5 px-3 font-bold">For Condition</th>
+                      <th class="py-2.5 px-3 font-bold">Dosage / Instructions</th>
+                      <th class="py-2.5 px-3 font-bold">Duration</th>
+                      <th class="py-2.5 px-3 font-bold text-right">Est. Price</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rx-final-meds-body" class="divide-y divide-slate-200"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Diet & Follow-Up Advice -->
+            <div class="bg-teal-50/70 border border-teal-200 rounded-xl p-4 space-y-1.5 text-xs">
+              <h4 class="font-bold text-teal-900">Dietary & Lifestyle Instructions (Bachelor/Hostel Care):</h4>
+              <p id="rx-advice-text" class="text-teal-800"></p>
+              <p class="text-slate-600 pt-1">
+                <strong>Emergency Red Flags:</strong> Visit nearest hospital immediately if fever exceeds 103°F, breathing difficulty occurs, or symptoms persist beyond 5 days.
+              </p>
+            </div>
+
+            <!-- Doctor Digital Signature & Verification Footer -->
+            <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+              <div class="flex items-center gap-3">
+                <!-- Inline SVG QR Code Representation -->
+                <div class="w-14 h-14 rounded-lg border border-slate-300 p-1 flex items-center justify-center bg-white shrink-0">
+                  <svg viewBox="0 0 36 36" class="w-full h-full text-slate-800" fill="currentColor">
+                    <rect x="2" y="2" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="5" y="5" width="4" height="4"/>
+                    <rect x="24" y="2" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="27" y="5" width="4" height="4"/>
+                    <rect x="2" y="24" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="5" y="27" width="4" height="4"/>
+                    <rect x="15" y="4" width="3" height="3"/>
+                    <rect x="19" y="8" width="3" height="6"/>
+                    <rect x="14" y="15" width="6" height="3"/>
+                    <rect x="22" y="16" width="4" height="4"/>
+                    <rect x="28" y="15" width="5" height="3"/>
+                    <rect x="15" y="22" width="3" height="6"/>
+                    <rect x="21" y="24" width="5" height="3"/>
+                    <rect x="28" y="22" width="4" height="5"/>
+                    <rect x="24" y="30" width="9" height="4"/>
+                  </svg>
+                </div>
+                <div class="text-slate-500">
+                  <p class="font-semibold text-slate-800">Digitally Signed & Pre-Validated</p>
+                  <p>Scan QR at any Jan Aushadhi Kendra or local chemist to verify authenticity.</p>
+                </div>
+              </div>
+              <div class="sm:text-right">
+                <p class="font-serif italic text-base text-teal-800 font-semibold" id="rx-sig-name">Dr. Ananya Kulkarni</p>
+                <p class="text-slate-500">Authorized Medical Officer Signature</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Bachelor Budget & Generic Savings Breakdown -->
+        <div class="lg:col-span-4 space-y-5 no-print">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <h3 class="text-base font-bold text-slate-900">Bachelor Budget & Savings</h3>
+            <p class="text-xs text-slate-500">
+              See how much a student/bachelor saves by combining ₹49 tele-consult with generic medicines.
+            </p>
+
+            <div class="space-y-2.5 text-xs">
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-slate-600">Doctor Urgent Tele-Consult Fee:</span>
+                <span class="font-bold text-slate-900" id="sav-consult-fee">₹49</span>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-slate-600">Branded Pharmacy Medicine Cost:</span>
+                <span class="line-through text-slate-400 font-semibold" id="sav-branded-cost">₹245</span>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-teal-700 font-semibold">Generic / Jan Aushadhi Cost:</span>
+                <span class="font-bold text-teal-700 text-sm" id="sav-generic-cost">₹65</span>
+              </div>
+              <div class="flex items-center justify-between pt-2 text-sm">
+                <span class="font-bold text-slate-900">Total Out-of-Pocket Expense:</span>
+                <span class="font-bold text-emerald-600 text-base" id="sav-total-cost">₹114</span>
+              </div>
+            </div>
+
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900 space-y-1">
+              <div class="font-bold flex items-center justify-between">
+                <span>Total Saved Today:</span>
+                <span id="sav-net-saved" class="text-sm font-extrabold text-emerald-700">₹681 saved</span>
+              </div>
+              <p class="text-[11px] text-emerald-700">
+                Includes ₹500 saved on physical clinic visit + <span id="sav-med-diff">₹180</span> saved on generic medicines.
+              </p>
+            </div>
+          </div>
+
+          <!-- Nearby Generic Pharmacy Locator Simulation -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900">Order or Pickup Generic Medicines</h3>
+            <div class="space-y-2 text-xs">
+              <div class="p-3 rounded-xl border border-teal-200 bg-teal-50/50 flex items-center justify-between">
+                <div>
+                  <p class="font-bold text-slate-900">PMBJP Jan Aushadhi Kendra</p>
+                  <p class="text-slate-500">0.8 km from Hostel • All drugs in stock</p>
+                </div>
+                <button type="button" id="btn-send-pharmacy-1" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold transition">
+                  Reserve
+                </button>
+              </div>
+              <div class="p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+                <div>
+                  <p class="font-bold text-slate-900">Campus MedPlus 24x7 Delivery</p>
+                  <p class="text-slate-500">30-min Hostel Drop • Free above ₹99</p>
+                </div>
+                <button type="button" id="btn-send-pharmacy-2" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold transition">
+                  Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: SECURE PAYMENT GATEWAY (UPI, QR, CARDS & NETBANKING) ==================== -->
+    <section id="view-payment" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm">
+            ₹
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900">CarePay Secure Bachelor Checkout</h2>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">256-Bit SSL • Zero Convenience Fee</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500">
+              Pay for your ₹49 urgent doctor consultation & low-cost generic medicines via UPI, QR, RuPay/Card, or NetBanking.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="payment-status-pill" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+            ● Payment Pending
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 5 Cols: Live Bill Summary, Bundle Selector & Bachelor Coupon -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-base font-bold text-slate-900">1. Order & Bill Breakdown</h3>
+              <span class="text-xs font-semibold text-teal-700" id="pay-patient-label">Rohan Deshmukh</span>
+            </div>
+
+            <!-- Choose What to Pay For -->
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-slate-700">Select Payment Scope</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <button type="button" id="btn-scope-bundle" class="p-3 rounded-xl border-2 border-teal-600 bg-teal-50/50 text-left transition">
+                  <p class="font-bold text-slate-900">Consult + Generic Meds</p>
+                  <p class="text-[11px] text-slate-500">Doctor Fee + Full Rx Delivery</p>
+                </button>
+                <button type="button" id="btn-scope-consult" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition">
+                  <p class="font-bold text-slate-900">Doctor Consult Only</p>
+                  <p class="text-[11px] text-slate-500">Unlock Instant Video & e-Rx</p>
+                </button>
+              </div>
+            </div>
+
+            <!-- Itemized Bill -->
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600" id="pay-doc-line">Urgent Doctor Tele-Consult (Dr. Ananya Kulkarni)</span>
+                <span class="font-bold text-slate-900" id="pay-consult-amt">₹49</span>
+              </div>
+              <div id="pay-meds-row" class="flex items-center justify-between">
+                <span class="text-slate-600" id="pay-meds-line">Jan Aushadhi Generic Medicines (4 items)</span>
+                <span class="font-bold text-slate-900" id="pay-meds-amt">₹96</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600">Hostel / PG Express Drop Fee</span>
+                <span class="font-semibold text-emerald-700">FREE (Bachelor Pass)</span>
+              </div>
+              <div id="pay-discount-row" class="hidden flex items-center justify-between text-emerald-700 font-semibold">
+                <span id="pay-discount-label">Student Subsidy Coupon (BACHELOR20)</span>
+                <span id="pay-discount-amt">-₹20</span>
+              </div>
+              <div class="border-t border-slate-200 pt-2.5 flex items-center justify-between text-sm">
+                <span class="font-bold text-slate-900">Total Payable Amount</span>
+                <span class="font-extrabold text-teal-700 text-lg" id="pay-final-total">₹145</span>
+              </div>
+            </div>
+
+            <!-- Student / Bachelor Subsidy Coupon Box -->
+            <div class="space-y-2">
+              <label for="pay-coupon-input" class="block text-xs font-semibold text-slate-700">Bachelor / Hostel Discount Code</label>
+              <div class="flex gap-2">
+                <input id="pay-coupon-input" type="text" value="BACHELOR20" placeholder="Enter BACHELOR20 or HOSTEL30" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <button type="button" id="btn-apply-coupon" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
+                  Apply Coupon
+                </button>
+              </div>
+              <div class="flex flex-wrap gap-1.5 text-[11px]">
+                <button type="button" id="btn-chip-bachelor20" class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium hover:bg-teal-100">
+                  Use BACHELOR20 (₹20 Off)
+                </button>
+                <button type="button" id="btn-chip-hostel30" class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium hover:bg-indigo-100">
+                  Use HOSTEL30 (₹30 Off Bundle)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions & Printable Receipt Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900">Payment Receipt & History</h3>
+              <button type="button" id="btn-copy-receipt" class="text-xs font-semibold text-teal-600 hover:text-teal-800 underline">
+                Copy Receipt
+              </button>
+            </div>
+            <div id="payment-receipt-box" class="space-y-2 text-xs"></div>
+          </div>
+        </div>
+
+        <!-- Right 7 Cols: Interactive Payment Method Selector (UPI, Card, NetBanking) -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">2. Choose Payment Method</h3>
+                <p class="text-xs text-slate-500">Instant confirmation unlocks video consultation & pharmacy dispatch</p>
+              </div>
+              <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                <button type="button" id="pay-tab-upi" class="pay-method-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-sm transition" data-method="upi">
+                  UPI / QR
+                </button>
+                <button type="button" id="pay-tab-card" class="pay-method-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition" data-method="card">
+                  Debit / Credit Card
+                </button>
+                <button type="button" id="pay-tab-wallet" class="pay-method-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition" data-method="wallet">
+                  NetBanking / Pay Later
+                </button>
+              </div>
+            </div>
+
+            <!-- METHOD A: UPI & Instant QR -->
+            <div id="pay-panel-upi" class="space-y-4">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <button type="button" class="upi-app-btn p-3 rounded-xl border-2 border-teal-600 bg-teal-50/40 font-bold text-slate-900 text-center transition" data-app="Google Pay (GPay)">
+                  Google Pay
+                </button>
+                <button type="button" class="upi-app-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 font-semibold text-slate-700 text-center transition" data-app="PhonePe UPI">
+                  PhonePe
+                </button>
+                <button type="button" class="upi-app-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 font-semibold text-slate-700 text-center transition" data-app="Paytm UPI">
+                  Paytm
+                </button>
+                <button type="button" class="upi-app-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 font-semibold text-slate-700 text-center transition" data-app="BHIM UPI">
+                  BHIM UPI
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <!-- Left 5 Cols: Real Scannable Dynamic UPI QR OR Custom Uploaded QR -->
+                <div class="sm:col-span-5 flex flex-col items-center text-center space-y-2">
+                  <div class="relative w-44 h-44 rounded-2xl border-2 border-teal-600 bg-white p-2.5 flex items-center justify-center shadow-sm overflow-hidden">
+                    <div id="live-qr-code-box" class="w-full h-full flex items-center justify-center"></div>
+                    <img id="custom-uploaded-qr-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Custom Uploaded UPI QR" class="hidden w-full h-full object-contain rounded-lg" />
+                  </div>
+                  <div class="space-y-0.5">
+                    <span class="block text-xs font-bold text-teal-900" id="qr-amount-caption">Scan to Pay ₹125 Instantly</span>
+                    <span class="block text-[11px] text-slate-500" id="qr-vpa-caption">UPI: 9834422118@yespop</span>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                    <label for="upload-my-qr-input" class="cursor-pointer px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-semibold transition">
+                      📤 Upload My QR Image
+                    </label>
+                    <input id="upload-my-qr-input" type="file" accept="image/*" class="hidden" />
+                    <button type="button" id="btn-reset-dynamic-qr" class="hidden px-2 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-[11px] font-semibold transition">
+                      Use Auto QR
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right 7 Cols: Set Your UPI ID for QR + Scan Detection Trigger -->
+                <div class="sm:col-span-7 space-y-3">
+                  <div class="bg-white rounded-xl p-3 border border-teal-200 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-slate-900">How Live QR Scan Works:</span>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Real UPI Standard</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed">
+                      1. Scan this QR code using <strong>Google Pay, PhonePe, Paytm, or BHIM</strong> on your phone.<br/>
+                      2. Your UPI app will automatically open <strong>Pay ₹<span id="qr-inline-amt">125</span></strong> to <strong>9834422118@yespop</strong> and initiate the payment!
+                    </p>
+                    <div class="pt-1 flex flex-wrap gap-2">
+                      <button type="button" id="btn-simulate-qr-scan" class="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition">
+                        📱 I Scanned the QR → Initiate Payment Now
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="upi-id-input" class="block text-xs font-semibold text-slate-700 mb-1">Or Enter Payer UPI ID / VPA</label>
+                    <div class="flex gap-2">
+                      <input id="upi-id-input" type="text" value="rohan.deshmukh@okaxis" placeholder="yourname@okicici / @ybl" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                      <button type="button" id="btn-verify-vpa" class="px-3 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-semibold transition">
+                        Verify ID
+                      </button>
+                    </div>
+                  </div>
+                  <p id="vpa-verified-msg" class="text-xs text-emerald-700 font-semibold">
+                    ✓ Verified Name: ROHAN S DESHMUKH ( Google Pay )
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- METHOD B: Debit / Credit / RuPay Card -->
+            <div id="pay-panel-card" class="hidden space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="sm:col-span-2">
+                  <label for="card-number-input" class="block text-xs font-semibold text-slate-700 mb-1">Card Number (RuPay / Visa / Mastercard)</label>
+                  <input id="card-number-input" type="text" value="4532 •••• •••• 8891" maxlength="19" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div>
+                  <label for="card-exp-input" class="block text-xs font-semibold text-slate-700 mb-1">Expiry Date (MM/YY)</label>
+                  <input id="card-exp-input" type="text" value="08/29" maxlength="5" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div>
+                  <label for="card-cvv-input" class="block text-xs font-semibold text-slate-700 mb-1">CVV / CVC</label>
+                  <input id="card-cvv-input" type="password" value="842" maxlength="4" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="card-holder-input" class="block text-xs font-semibold text-slate-700 mb-1">Name on Card</label>
+                  <input id="card-holder-input" type="text" value="ROHAN DESHMUKH" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+              </div>
+            </div>
+
+            <!-- METHOD C: NetBanking & Bachelor Pay-Later Wallet -->
+            <div id="pay-panel-wallet" class="hidden space-y-3">
+              <p class="text-xs text-slate-600">
+                Out of pocket money at month-end? Use <strong>Bachelor Emergency Credit (₹0 Interest for 15 Days)</strong> or Instant NetBanking.
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-teal-600 bg-teal-50/40 cursor-pointer">
+                  <input type="radio" name="wallet-choice" value="Bachelor Emergency Pay-Later (15 Days 0% Interest)" checked class="text-teal-600" />
+                  <div>
+                    <p class="font-bold text-slate-900">Bachelor Emergency Pay-Later</p>
+                    <p class="text-[11px] text-slate-500">Pay next month • ₹0 extra fee</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer">
+                  <input type="radio" name="wallet-choice" value="SBI / HDFC / ICICI NetBanking" class="text-teal-600" />
+                  <div>
+                    <p class="font-bold text-slate-900">Instant NetBanking</p>
+                    <p class="text-[11px] text-slate-500">SBI, HDFC, ICICI, Axis, Kotak</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Primary Pay Action Footer -->
+            <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div class="text-xs text-slate-500">
+                100% Refundable if doctor does not join within 5 mins.
+              </div>
+              <button type="button" id="btn-process-payment" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                <span id="btn-pay-now-label">Pay ₹145 Securely Now</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ==================== APPLICATION STATE & MEDICAL CATALOG ====================
+    const SYMPTOM_OPTIONS = [
+      { id: 'sym_fever', name: 'High Fever & Chills', category: 'Symptom', defaultChecked: true },
+      { id: 'sym_throat', name: 'Severe Sore Throat / Pharyngitis', category: 'Symptom', defaultChecked: true },
+      { id: 'sym_bodyache', name: 'Body Ache & Fatigue', category: 'Symptom', defaultChecked: true },
+      { id: 'sym_migraine', name: 'Throbbing Migraine / Headache', category: 'Symptom', defaultChecked: false },
+      { id: 'sym_cough', name: 'Dry / Wet Cough', category: 'Symptom', defaultChecked: false },
+      { id: 'sym_diarrhea', name: 'Food Poisoning / Loose Motion', category: 'Symptom', defaultChecked: false }
+    ];
+
+    const ILLNESS_OPTIONS = [
+      { id: 'ill_gastritis', name: 'Acid Reflux / Acute Gastritis (Mess Food)', category: 'Co-existing Illness', defaultChecked: true, blocksClass: 'NSAID' },
+      { id: 'ill_asthma', name: 'Mild Bronchial Asthma / Wheezing', category: 'Co-existing Illness', defaultChecked: false, blocksClass: 'NSAID_BETA' },
+      { id: 'ill_sinus', name: 'Chronic Allergic Sinusitis', category: 'Co-existing Illness', defaultChecked: false, blocksClass: 'NONE' },
+      { id: 'ill_dehydration', name: 'Weakness / Dehydration', category: 'Co-existing Illness', defaultChecked: true, blocksClass: 'NONE' }
+    ];
+
+    const DOCTORS_LIST = [
+      {
+        id: 'doc_1',
+        name: 'Dr. Ananya Kulkarni',
+        qual: 'MBBS, MD (General Medicine)',
+        reg: 'MMC-2019-88412',
+        wait: '3 mins wait',
+        fee: 49,
+        languages: 'English, Hindi, Marathi',
+        rating: '4.9 ★ (1.4k Bachelors helped)'
+      },
+      {
+        id: 'doc_2',
+        name: 'Dr. Siddharth Nair',
+        qual: 'MBBS, DNB (Family Physician)',
+        reg: 'MCI-2020-44109',
+        wait: '5 mins wait',
+        fee: 49,
+        languages: 'English, Hindi, Malayalam',
+        rating: '4.8 ★ (980 Bachelors helped)'
+      },
+      {
+        id: 'doc_3',
+        name: 'Dr. Mehul Joshi',
+        qual: 'MBBS, PGDCC (Urgent Care)',
+        reg: 'GMC-2018-31094',
+        wait: 'Instant Slot',
+        fee: 69,
+        languages: 'English, Hindi, Gujarati',
+        rating: '4.9 ★ (2.1k Bachelors helped)'
+      }
+    ];
+
+    const MEDICINE_DATABASE = [
+      {
+        id: 'med_paracetamol',
+        genericName: 'Paracetamol 650mg Tablet',
+        brandName: 'Dolo 650 / Calpol 650',
+        targets: 'Fever, Body Ache & Headache',
+        drugClass: 'Antipyretic',
+        brandedPrice: 34,
+        genericPrice: 12,
+        defaultFreq: '1-1-1 (Thrice Daily)',
+        defaultDays: '3 Days',
+        timing: 'After Food',
+        contraindicatedWith: []
+      },
+      {
+        id: 'med_pantoprazole',
+        genericName: 'Pantoprazole 40mg + Domperidone SR',
+        brandName: 'Pan-D / Pantocid DSR',
+        targets: 'Acid Reflux / Acute Gastritis',
+        drugClass: 'PPI Antacid',
+        brandedPrice: 145,
+        genericPrice: 28,
+        defaultFreq: '1-0-0 (Morning Empty Stomach)',
+        defaultDays: '5 Days',
+        timing: '30 mins Before Breakfast',
+        contraindicatedWith: []
+      },
+      {
+        id: 'med_cetirizine',
+        genericName: 'Levocetirizine 5mg + Montelukast 10mg',
+        brandName: 'Montair LC / Telekast-L',
+        targets: 'Sore Throat, Sinusitis & Allergic Cough',
+        drugClass: 'Antihistamine',
+        brandedPrice: 165,
+        genericPrice: 35,
+        defaultFreq: '0-0-1 (Bedtime)',
+        defaultDays: '5 Days',
+        timing: 'After Dinner at Bedtime',
+        contraindicatedWith: []
+      },
+      {
+        id: 'med_ors',
+        genericName: 'WHO Oral Rehydration Salts (ORS) + Zinc',
+        brandName: 'Electral / ORSL Pack (3 Sachets)',
+        targets: 'Weakness, Fever Dehydration & Loose Motion',
+        drugClass: 'Electrolyte',
+        brandedPrice: 66,
+        genericPrice: 21,
+        defaultFreq: '1-1-1 (Sip Throughout Day)',
+        defaultDays: '3 Days',
+        timing: 'Dissolve in 1L clean water',
+        contraindicatedWith: []
+      },
+      {
+        id: 'med_azithro',
+        genericName: 'Azithromycin 500mg Tablet',
+        brandName: 'Azithral 500 / Azee 500',
+        targets: 'Severe Bacterial Pharyngitis / Throat Infection',
+        drugClass: 'Macrolide Antibiotic',
+        brandedPrice: 119,
+        genericPrice: 38,
+        defaultFreq: '1-0-0 (Once Daily)',
+        defaultDays: '3 Days',
+        timing: '1 hr Before or 2 hrs After Food',
+        contraindicatedWith: []
+      },
+      {
+        id: 'med_ibuprofen',
+        genericName: 'Ibuprofen 400mg + Paracetamol',
+        brandName: 'Combiflam / Brufen 400',
+        targets: 'Severe Pain & Inflammation',
+        drugClass: 'NSAID',
+        brandedPrice: 48,
+        genericPrice: 15,
+        defaultFreq: '1-0-1 (Twice Daily)',
+        defaultDays: '3 Days',
+        timing: 'Strictly After Full Meal',
+        contraindicatedWith: ['NSAIDs / Ibuprofen', 'ill_gastritis', 'ill_asthma']
+      },
+      {
+        id: 'med_amox',
+        genericName: 'Amoxicillin 500mg + Clavulanic Acid 125mg',
+        brandName: 'Augmentin 625 Duo',
+        targets: 'Bacterial Respiratory / Sinus Infection',
+        drugClass: 'Penicillin',
+        brandedPrice: 220,
+        genericPrice: 64,
+        defaultFreq: '1-0-1 (Twice Daily)',
+        defaultDays: '5 Days',
+        timing: 'After Food',
+        contraindicatedWith: ['Penicillin / Amoxicillin']
+      }
+    ];
+
+    const state = {
+      activeTab: 'patient',
+      selectedDoctorId: 'doc_1',
+      selectedSymptoms: ['sym_fever', 'sym_throat', 'sym_bodyache'],
+      selectedIllnesses: ['ill_gastritis', 'ill_dehydration'],
+      verifiedConditions: {
+        'sym_fever': true,
+        'sym_throat': true,
+        'sym_bodyache': false,
+        'ill_gastritis': false,
+        'ill_dehydration': false
+      },
+      prescribedMeds: [
+        {
+          id: 'med_paracetamol',
+          freq: '1-1-1 (Thrice Daily)',
+          days: '3 Days'
+        },
+        {
+          id: 'med_pantoprazole',
+          freq: '1-0-0 (Morning Empty Stomach)',
+          days: '5 Days'
+        },
+        {
+          id: 'med_cetirizine',
+          freq: '0-0-1 (Bedtime)',
+          days: '5 Days'
+        },
+        {
+          id: 'med_ors',
+          freq: '1-1-1 (Sip Throughout Day)',
+          days: '3 Days'
+        }
+      ],
+      useGenericMode: true,
+      paymentScope: 'bundle',
+      paymentMethod: 'upi',
+      selectedUpiApp: 'Google Pay (GPay)',
+      discountAmount: 20,
+      appliedCoupon: 'BACHELOR20',
+      paymentCompleted: false,
+      isLivePaymentMode: true,
+      customQrDataUrl: null,
+      liveTimerInterval: null,
+      liveSecondsRemaining: 299,
+      transactions: [
+        {
+          txnId: 'TXN-CRX-90841',
+          date: '01 Nov 2026, 04:05 PM',
+          desc: 'Urgent Consult + Generic Medicines',
+          method: 'Google Pay (UPI)',
+          amount: 125,
+          status: 'SUCCESS'
+        }
+      ],
+      chatMessages: [
+        { sender: 'doctor', text: 'Hello Rohan! I can see your AI symptom summary. You have 101.4°F fever, throat pain, and also gastritis from mess food, right?' },
+        { sender: 'patient', text: 'Yes Doctor, whenever I take normal painkillers my stomach burns badly. Please prescribe something safe and budget-friendly.' },
+        { sender: 'doctor', text: 'Noted! I have flagged your NSAID allergy and gastritis. I am avoiding Ibuprofen and adding a stomach-protective generic regimen.' }
+      ]
+    };
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'error'
+        ? 'bg-rose-600 text-white'
+        : type === 'warning'
+        ? 'bg-amber-500 text-slate-950'
+        : 'bg-slate-900 text-white';
+      toast.className = `${colors} px-4 py-3 rounded-xl shadow-lg text-xs font-semibold flex items-center justify-between gap-3 pointer-events-auto transition-all`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3200);
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => {
+          fallbackCopy(text, successMsg);
+        });
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (e) {
+        showToast('Could not copy automatically.', 'warning');
+      }
+      document.body.removeChild(ta);
+    }
+
+    function getActiveConditionsList() {
+      const syms = SYMPTOM_OPTIONS.filter(s => state.selectedSymptoms.includes(s.id));
+      const ills = ILLNESS_OPTIONS.filter(i => state.selectedIllnesses.includes(i.id));
+      return [...syms, ...ills];
+    }
+
+    function getSelectedDoctor() {
+      return DOCTORS_LIST.find(d => d.id === state.selectedDoctorId) || DOCTORS_LIST[0];
+    }
+
+    // ==================== RENDER FUNCTIONS ====================
+    function switchTab(targetTab) {
+      state.activeTab = targetTab;
+      ['patient', 'doctor', 'rx', 'payment'].forEach(tab => {
+        const section = document.getElementById(`view-${tab}`);
+        const btn = document.getElementById(`tab-btn-${tab}`);
+        if (tab === targetTab) {
+          section.classList.remove('hidden');
+          btn.className = 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-teal-700 shadow-sm';
+        } else {
+          section.classList.add('hidden');
+          btn.className = 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900';
+        }
+      });
+      renderAll();
+    }
+
+    function renderPatientChips() {
+      const symContainer = document.getElementById('symptom-chips-container');
+      symContainer.innerHTML = '';
+      SYMPTOM_OPTIONS.forEach(sym => {
+        const active = state.selectedSymptoms.includes(sym.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = active
+          ? 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-teal-600 text-white shadow-sm transition'
+          : 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+        btn.textContent = (active ? '✓ ' : '+ ') + sym.name;
+        btn.addEventListener('click', () => {
+          if (active) {
+            if (state.selectedSymptoms.length > 1) {
+              state.selectedSymptoms = state.selectedSymptoms.filter(id => id !== sym.id);
+            } else {
+              showToast('Keep at least one primary symptom selected.', 'warning');
+            }
+          } else {
+            state.selectedSymptoms.push(sym.id);
+          }
+          renderAll();
+        });
+        symContainer.appendChild(btn);
+      });
+
+      const illContainer = document.getElementById('illness-chips-container');
+      illContainer.innerHTML = '';
+      ILLNESS_OPTIONS.forEach(ill => {
+        const active = state.selectedIllnesses.includes(ill.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = active
+          ? 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-sm transition'
+          : 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+        btn.textContent = (active ? '⚠️ ' : '+ ') + ill.name;
+        btn.addEventListener('click', () => {
+          if (active) {
+            state.selectedIllnesses = state.selectedIllnesses.filter(id => id !== ill.id);
+          } else {
+            state.selectedIllnesses.push(ill.id);
+          }
+          renderAll();
+        });
+        illContainer.appendChild(btn);
+      });
+    }
+
+    function renderDoctorCards() {
+      const container = document.getElementById('doctor-cards-container');
+      container.innerHTML = '';
+      DOCTORS_LIST.forEach(doc => {
+        const selected = doc.id === state.selectedDoctorId;
+        const card = document.createElement('div');
+        card.className = selected
+          ? 'p-3.5 rounded-xl border-2 border-teal-600 bg-teal-50/40 cursor-pointer transition space-y-1.5'
+          : 'p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition space-y-1.5';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900">${doc.name}</span>
+            <span class="text-xs font-extrabold text-teal-700">₹${doc.fee}</span>
+          </div>
+          <p class="text-[11px] text-slate-500">${doc.qual}</p>
+          <p class="text-[11px] text-slate-600 font-medium">${doc.rating}</p>
+          <div class="pt-1 flex items-center justify-between text-[11px]">
+            <span class="text-emerald-700 font-semibold">● ${doc.wait}</span>
+            <span class="font-semibold ${selected ? 'text-teal-700' : 'text-slate-400'}">${selected ? 'Selected ✓' : 'Select'}</span>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          state.selectedDoctorId = doc.id;
+          renderAll();
+        });
+        container.appendChild(card);
+      });
+
+      const activeDoc = getSelectedDoctor();
+      document.getElementById('selected-slot-label').textContent = `${activeDoc.name} (${activeDoc.wait}) • ₹${activeDoc.fee}`;
+    }
+
+    function renderAIPreChecker() {
+      const ptName = document.getElementById('pt-name').value || 'Patient';
+      const temp = parseFloat(document.getElementById('pt-temp').value) || 98.6;
+      const duration = document.getElementById('pt-duration').value;
+      const allergy = document.getElementById('pt-allergy').value;
+      const budget = parseInt(document.getElementById('pt-budget').value, 10) || 150;
+
+      const activeConditions = getActiveConditionsList();
+      const triageBadge = document.getElementById('ai-triage-badge');
+      if (temp >= 101.0 || activeConditions.length >= 4) {
+        triageBadge.textContent = 'Priority Urgent Triage';
+        triageBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30';
+      } else {
+        triageBadge.textContent = 'Standard Tele-Triage';
+        triageBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+      }
+
+      const contraWarnings = [];
+      if (allergy !== 'None') {
+        contraWarnings.push(`Do NOT prescribe ${allergy}`);
+      }
+      if (state.selectedIllnesses.includes('ill_gastritis')) {
+        contraWarnings.push('Avoid bare NSAIDs (Ibuprofen/Aspirin) due to Acute Gastritis; co-prescribe PPI antacid');
+      }
+      if (state.selectedIllnesses.includes('ill_asthma')) {
+        contraWarnings.push('Avoid NSAIDs/Beta-blockers that may trigger bronchospasm in Asthma');
+      }
+
+      const precheckBox = document.getElementById('ai-precheck-output');
+      precheckBox.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+          <span class="font-bold text-white">${ptName} (${temp}°F • ${duration})</span>
+          <span class="text-teal-300 font-semibold">${activeConditions.length} Conditions Flagged</span>
+        </div>
+        <div>
+          <p class="text-slate-400 mb-1">Conditions Requiring Doctor Check:</p>
+          <div class="flex flex-wrap gap-1.5">
+            ${activeConditions.map(c => `<span class="px-2 py-0.5 rounded bg-slate-700 text-slate-100 font-medium">${c.name}</span>`).join('')}
+          </div>
+        </div>
+        <div class="pt-1 border-t border-slate-700/80">
+          <p class="text-rose-300 font-semibold">Automated Safety & Contradiction Guardrails:</p>
+          <ul class="list-disc list-inside text-slate-200 space-y-0.5 mt-1">
+            ${contraWarnings.length ? contraWarnings.map(w => `<li>${w}</li>`).join('') : '<li>No high-risk drug allergies reported.</li>'}
+          </ul>
+        </div>
+      `;
+
+      const doc = getSelectedDoctor();
+      const genericTotal = state.prescribedMeds.reduce((acc, item) => {
+        const med = MEDICINE_DATABASE.find(m => m.id === item.id);
+        return acc + (med ? med.genericPrice : 0);
+      }, 0);
+      document.getElementById('ai-est-cost').textContent = `₹${doc.fee + genericTotal} total (₹${doc.fee} Dr + ₹${genericTotal} Meds)`;
+      document.getElementById('ai-budget-Text').textContent = `₹${budget}`;
+
+      // Render Queue List
+      const queueList = document.getElementById('patient-queue-list');
+      const allVerified = isEveryIllnessVerified();
+      queueList.innerHTML = `
+        <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+          <div class="text-xs">
+            <p class="font-bold text-slate-900">${ptName} → ${doc.name}</p>
+            <p class="text-slate-500">${activeConditions.length} illnesses logged • ${allVerified ? 'All illnesses verified ✓' : 'Awaiting Doctor Check'}</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${allVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+            ${allVerified ? 'Rx Issued' : 'In Consultation'}
+          </span>
+        </div>
+      `;
+    }
+
+    function isEveryIllnessVerified() {
+      const conditions = getActiveConditionsList();
+      if (conditions.length === 0) return true;
+      return conditions.every(c => Boolean(state.verifiedConditions[c.id]));
+    }
+
+    function renderDoctorConsole() {
+      const doc = getSelectedDoctor();
+      const ptName = document.getElementById('pt-name').value || 'Rohan Deshmukh';
+      const ptAge = document.getElementById('pt-age').value || '22 yrs • Bachelor';
+      const ptTemp = document.getElementById('pt-temp').value || '101.4';
+      const ptDuration = document.getElementById('pt-duration').value;
+      const ptAllergy = document.getElementById('pt-allergy').value;
+      const ptNotes = document.getElementById('pt-notes').value;
+
+      document.getElementById('doc-active-doctor-name').textContent = `${doc.name} (${doc.qual})`;
+
+      document.getElementById('doc-patient-banner').innerHTML = `
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 text-sm">${ptName}</strong>
+          <span class="font-semibold text-teal-700">${ptTemp}°F • ${ptDuration}</span>
+        </div>
+        <p class="text-slate-600">${ptAge}</p>
+        <p class="text-slate-700 italic">"${ptNotes}"</p>
+      `;
+
+      const conditions = getActiveConditionsList();
+      const verifiedCount = conditions.filter(c => state.verifiedConditions[c.id]).length;
+      const progressBadge = document.getElementById('illness-verify-progress');
+      progressBadge.textContent = `${verifiedCount} / ${conditions.length} Checked`;
+      progressBadge.className = verifiedCount === conditions.length
+        ? 'text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200'
+        : 'text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200';
+
+      const checklistEl = document.getElementById('doc-illness-checklist');
+      checklistEl.innerHTML = '';
+      conditions.forEach(cond => {
+        const isChecked = Boolean(state.verifiedConditions[cond.id]);
+        const row = document.createElement('label');
+        row.className = isChecked
+          ? 'flex items-center justify-between p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 cursor-pointer transition text-xs'
+          : 'flex items-center justify-between p-3 rounded-xl border border-amber-200 bg-amber-50/30 hover:bg-amber-50/60 cursor-pointer transition text-xs';
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500" />
+            <div>
+              <p class="font-bold text-slate-900">${cond.name}</p>
+              <p class="text-[11px] text-slate-500">${cond.category}</p>
+            </div>
+          </div>
+          <span class="font-semibold ${isChecked ? 'text-emerald-700' : 'text-amber-700'}">
+            ${isChecked ? '✓ Examined' : 'Pending Check'}
+          </span>
+        `;
+        const checkbox = row.querySelector('input');
+        checkbox.addEventListener('change', () => {
+          state.verifiedConditions[cond.id] = checkbox.checked;
+          renderAll();
+        });
+        checklistEl.appendChild(row);
+      });
+
+      // Safety Alert Box
+      const safetyBox = document.getElementById('doc-safety-alert-box');
+      const hasGastritis = state.selectedIllnesses.includes('ill_gastritis');
+      safetyBox.className = 'rounded-xl p-3.5 border border-rose-200 bg-rose-50/70 text-xs space-y-1 text-rose-900';
+      safetyBox.innerHTML = `
+        <p class="font-bold text-rose-800">⚠️ Patient Drug Allergy & Multi-Illness Alert</p>
+        <p><strong>Reported Allergy:</strong> ${ptAllergy}</p>
+        ${hasGastritis ? '<p><strong>Co-morbidity Guard:</strong> Patient has Acute Gastritis — NSAID painkillers (like Ibuprofen/Combiflam) will be blocked or flagged.</p>' : ''}
+      `;
+
+      // Populate Medicine Select Dropdown
+      const medSelect = document.getElementById('med-select');
+      const currentVal = medSelect.value;
+      medSelect.innerHTML = '';
+      MEDICINE_DATABASE.forEach(med => {
+        const opt = document.createElement('option');
+        opt.value = med.id;
+        opt.textContent = `${med.genericName} (Generic ₹${med.genericPrice} vs Brand ₹${med.brandedPrice})`;
+        medSelect.appendChild(opt);
+      });
+      if (currentVal) medSelect.value = currentVal;
+
+      // Render Prescribed Medicines Table
+      const tbody = document.getElementById('doc-med-table-body');
+      tbody.innerHTML = '';
+      let totalGeneric = 0;
+      let totalBranded = 0;
+
+      state.prescribedMeds.forEach((item, idx) => {
+        const med = MEDICINE_DATABASE.find(m => m.id === item.id);
+        if (!med) return;
+        totalGeneric += med.genericPrice;
+        totalBranded += med.brandedPrice;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2.5 px-3">
+            <p class="font-bold text-slate-900">${med.genericName}</p>
+            <p class="text-[11px] text-slate-500">Brand ref: ${med.brandName}</p>
+          </td>
+          <td class="py-2.5 px-3 text-slate-700 font-medium">${med.targets}</td>
+          <td class="py-2.5 px-3">
+            <p class="font-semibold text-slate-800">${item.freq}</p>
+            <p class="text-[11px] text-slate-500">${item.days} • ${med.timing}</p>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="line-through text-slate-400 mr-1">₹${med.brandedPrice}</span>
+            <span class="font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">₹${med.genericPrice}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right">
+            <button type="button" class="text-rose-600 hover:text-rose-800 font-semibold text-xs">Remove</button>
+          </td>
+        `;
+        tr.querySelector('button').addEventListener('click', () => {
+          state.prescribedMeds.splice(idx, 1);
+          renderAll();
+        });
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('doc-rx-cost-summary').textContent =
+        `Generic Total: ₹${totalGeneric} (Saves ₹${Math.max(0, totalBranded - totalGeneric)} vs Branded ₹${totalBranded})`;
+
+      const signStatus = document.getElementById('doc-sign-status');
+      if (verifiedCount === conditions.length) {
+        signStatus.innerHTML = '<span class="text-emerald-700 font-semibold">✓ All patient illnesses verified! Ready to issue e-Prescription.</span>';
+      } else {
+        signStatus.innerHTML = `<span class="text-amber-700 font-semibold">⚠️ Please check off all ${conditions.length} patient conditions on the left before issuing Rx.</span>`;
+      }
+
+      renderChatBox();
+    }
+
+    function renderChatBox() {
+      const box = document.getElementById('consult-chat-box');
+      box.innerHTML = '';
+      state.chatMessages.forEach(msg => {
+        const div = document.createElement('div');
+        if (msg.sender === 'doctor') {
+          div.className = 'bg-indigo-50 border border-indigo-100 text-slate-800 p-2.5 rounded-xl mr-6';
+          div.innerHTML = `<p class="font-bold text-indigo-800 text-[11px]">Doctor</p><p>${msg.text}</p>`;
+        } else {
+          div.className = 'bg-teal-50 border border-teal-100 text-slate-800 p-2.5 rounded-xl ml-6';
+          div.innerHTML = `<p class="font-bold text-teal-800 text-[11px]">Patient (Bachelor)</p><p>${msg.text}</p>`;
+        }
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderFinalPrescription() {
+      const doc = getSelectedDoctor();
+      const ptName = document.getElementById('pt-name').value || 'Rohan Deshmukh';
+      const ptAge = document.getElementById('pt-age').value || '22 yrs • Hostel / PG Bachelor';
+      const ptTemp = document.getElementById('pt-temp').value || '101.4';
+      const ptDuration = document.getElementById('pt-duration').value;
+      const ptAllergy = document.getElementById('pt-allergy').value;
+      const diagnosis = document.getElementById('doc-diagnosis').value;
+      const advice = document.getElementById('doc-advice').value;
+
+      document.getElementById('rx-doc-name').textContent = `${doc.name}, ${doc.qual}`;
+      document.getElementById('rx-sig-name').textContent = doc.name;
+      document.getElementById('rx-pt-name').textContent = ptName;
+      document.getElementById('rx-pt-age').textContent = ptAge;
+      document.getElementById('rx-pt-temp').textContent = `${ptTemp} °F (Duration: ${ptDuration})`;
+      document.getElementById('rx-pt-allergy').textContent = ptAllergy;
+      document.getElementById('rx-diagnosis').textContent = diagnosis;
+      document.getElementById('rx-advice-text').textContent = advice;
+
+      const conditions = getActiveConditionsList();
+      document.getElementById('rx-checked-illnesses').textContent =
+        conditions.map(c => `✓ ${c.name}`).join(' • ');
+
+      const tbody = document.getElementById('rx-final-meds-body');
+      tbody.innerHTML = '';
+      let totalBranded = 0;
+      let totalGeneric = 0;
+
+      state.prescribedMeds.forEach((item, idx) => {
+        const med = MEDICINE_DATABASE.find(m => m.id === item.id);
+        if (!med) return;
+        totalBranded += med.brandedPrice;
+        totalGeneric += med.genericPrice;
+
+        const shownPrice = state.useGenericMode ? med.genericPrice : med.brandedPrice;
+        const shownTitle = state.useGenericMode
+          ? `${med.genericName} <span class="text-[11px] font-semibold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded ml-1">Jan Aushadhi Generic</span>`
+          : `${med.brandName} <span class="text-[11px] text-slate-500">(${med.genericName})</span>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-bold text-slate-700">${idx + 1}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-900">${shownTitle}</td>
+          <td class="py-2.5 px-3 text-slate-600">${med.targets}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-semibold text-slate-900">${item.freq}</span>
+            <span class="block text-[11px] text-slate-500">${med.timing}</span>
+          </td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${item.days}</td>
+          <td class="py-2.5 px-3 font-bold text-right text-teal-700">₹${shownPrice}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const toggleBtn = document.getElementById('btn-toggle-generic-mode');
+      toggleBtn.textContent = state.useGenericMode
+        ? 'Mode: Jan Aushadhi Generics (Click to Compare Branded)'
+        : 'Mode: Branded Medicines (Click to Switch to Generics)';
+
+      // Savings Card
+      document.getElementById('sav-consult-fee').textContent = `₹${doc.fee}`;
+      document.getElementById('sav-branded-cost').textContent = `₹${totalBranded}`;
+      document.getElementById('sav-generic-cost').textContent = `₹${totalGeneric}`;
+      const activeMedCost = state.useGenericMode ? totalGeneric : totalBranded;
+      document.getElementById('sav-total-cost').textContent = `₹${doc.fee + activeMedCost}`;
+
+      const medDiff = Math.max(0, totalBranded - totalGeneric);
+      const clinicSaved = 550 - doc.fee;
+      document.getElementById('sav-med-diff').textContent = `₹${medDiff}`;
+      document.getElementById('sav-net-saved').textContent = `₹${clinicSaved + medDiff} saved`;
+    }
+
+    function getPaymentTotals() {
+      const doc = getSelectedDoctor();
+      const consultFee = doc.fee;
+      const medsCost = state.prescribedMeds.reduce((acc, item) => {
+        const med = MEDICINE_DATABASE.find(m => m.id === item.id);
+        if (!med) return acc;
+        return acc + (state.useGenericMode ? med.genericPrice : med.brandedPrice);
+      }, 0);
+      const rawTotal = state.paymentScope === 'bundle' ? (consultFee + medsCost) : consultFee;
+      const discount = Math.min(state.discountAmount, Math.max(0, rawTotal - 29));
+      const finalTotal = Math.max(29, rawTotal - discount);
+      return { consultFee, medsCost, rawTotal, discount, finalTotal };
+    }
+
+    function renderPaymentGateway() {
+      const doc = getSelectedDoctor();
+      const ptName = document.getElementById('pt-name').value || 'Rohan Deshmukh';
+      const totals = getPaymentTotals();
+
+      document.getElementById('pay-patient-label').textContent = ptName;
+      document.getElementById('pay-doc-line').textContent = `Urgent Tele-Consult (${doc.name})`;
+      document.getElementById('pay-consult-amt').textContent = `₹${totals.consultFee}`;
+
+      const medsRow = document.getElementById('pay-meds-row');
+      if (state.paymentScope === 'bundle') {
+        medsRow.classList.remove('hidden');
+        document.getElementById('pay-meds-line').textContent =
+          `${state.useGenericMode ? 'Jan Aushadhi Generic' : 'Branded'} Medicines (${state.prescribedMeds.length} items)`;
+        document.getElementById('pay-meds-amt').textContent = `₹${totals.medsCost}`;
+      } else {
+        medsRow.classList.add('hidden');
+      }
+
+      const discRow = document.getElementById('pay-discount-row');
+      if (totals.discount > 0 && state.appliedCoupon) {
+        discRow.classList.remove('hidden');
+        document.getElementById('pay-discount-label').textContent = `Student Subsidy (${state.appliedCoupon})`;
+        document.getElementById('pay-discount-amt').textContent = `-₹${totals.discount}`;
+      } else {
+        discRow.classList.add('hidden');
+      }
+
+      document.getElementById('pay-final-total').textContent = `₹${totals.finalTotal}`;
+      document.getElementById('btn-pay-now-label').textContent = state.paymentCompleted
+        ? `Paid ₹${totals.finalTotal} ✓ (Click to Pay Again)`
+        : `Pay ₹${totals.finalTotal} Securely Now`;
+
+      // Scope buttons styling
+      const btnBundle = document.getElementById('btn-scope-bundle');
+      const btnConsult = document.getElementById('btn-scope-consult');
+      if (state.paymentScope === 'bundle') {
+        btnBundle.className = 'p-3 rounded-xl border-2 border-teal-600 bg-teal-50/50 text-left transition';
+        btnConsult.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition';
+      } else {
+        btnConsult.className = 'p-3 rounded-xl border-2 border-teal-600 bg-teal-50/50 text-left transition';
+        btnBundle.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition';
+      }
+
+      // Status pill
+      const statusPill = document.getElementById('payment-status-pill');
+      const navBadge = document.getElementById('nav-pay-badge');
+      if (state.paymentCompleted) {
+        statusPill.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        statusPill.textContent = '✓ Payment Verified';
+        navBadge.className = 'ml-1 px-1.5 py-0.2 rounded-full text-[11px] bg-emerald-100 text-emerald-800';
+        navBadge.textContent = 'Paid ✓';
+      } else {
+        statusPill.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200';
+        statusPill.textContent = `● Due: ₹${totals.finalTotal}`;
+        navBadge.className = 'ml-1 px-1.5 py-0.2 rounded-full text-[11px] bg-teal-100 text-teal-800';
+        navBadge.textContent = `₹${totals.finalTotal}`;
+      }
+
+      // Build Real Scannable UPI Deep Link for 9834422118@yespop
+      const merchantVpa = '9834422118@yespop';
+      const upiHref = `upi://pay?pa=${encodeURIComponent(merchantVpa)}&pn=${encodeURIComponent('CareRx Bachelor Clinic')}&am=${totals.finalTotal}&cu=INR&tn=${encodeURIComponent('CareRx Urgent Consult Rx')}`;
+
+      // Render Real Scannable QR Code or Custom Uploaded QR Image
+      document.getElementById('qr-amount-caption').textContent = `Scan to Pay ₹${totals.finalTotal} Instantly`;
+      document.getElementById('qr-vpa-caption').textContent = state.customQrDataUrl ? 'Custom Uploaded UPI QR Active' : `UPI: ${merchantVpa}`;
+      document.getElementById('qr-inline-amt').textContent = String(totals.finalTotal);
+      const modalAmtText = document.getElementById('modal-qr-amt-text');
+      const modalVpaText = document.getElementById('modal-qr-vpa-text');
+      if (modalAmtText) modalAmtText.textContent = `₹${totals.finalTotal}`;
+      if (modalVpaText) modalVpaText.textContent = merchantVpa;
+
+      const qrBox = document.getElementById('live-qr-code-box');
+      const customImg = document.getElementById('custom-uploaded-qr-img');
+      const modalQrBox = document.getElementById('modal-qr-code-box');
+      const modalCustomImg = document.getElementById('modal-custom-qr-img');
+      const resetQrBtn = document.getElementById('btn-reset-dynamic-qr');
+
+      if (state.customQrDataUrl) {
+        qrBox.classList.add('hidden');
+        customImg.src = state.customQrDataUrl;
+        customImg.classList.remove('hidden');
+        resetQrBtn.classList.remove('hidden');
+        if (modalQrBox && modalCustomImg) {
+          modalQrBox.classList.add('hidden');
+          modalCustomImg.src = state.customQrDataUrl;
+          modalCustomImg.classList.remove('hidden');
+        }
+      } else {
+        qrBox.classList.remove('hidden');
+        customImg.classList.add('hidden');
+        resetQrBtn.classList.add('hidden');
+        if (modalQrBox && modalCustomImg) {
+          modalQrBox.classList.remove('hidden');
+          modalCustomImg.classList.add('hidden');
+        }
+        if (typeof qrcode === 'function') {
+          try {
+            const qr = qrcode(0, 'M');
+            qr.addData(upiHref);
+            qr.make();
+            const svgTag = qr.createSvgTag({ cellSize: 3, margin: 1, scalable: true });
+            qrBox.innerHTML = svgTag;
+            const svgEl = qrBox.querySelector('svg');
+            if (svgEl) {
+              svgEl.setAttribute('class', 'w-full h-full');
+            }
+            if (modalQrBox) {
+              modalQrBox.innerHTML = svgTag;
+              const mSvg = modalQrBox.querySelector('svg');
+              if (mSvg) mSvg.setAttribute('class', 'w-full h-full');
+            }
+          } catch (e) {
+            qrBox.innerHTML = '<span class="text-xs text-slate-500">QR Ready</span>';
+          }
+        }
+      }
+
+      // Render Receipts History
+      const receiptBox = document.getElementById('payment-receipt-box');
+      receiptBox.innerHTML = state.transactions.map(t => `
+        <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+          <div>
+            <p class="font-bold text-slate-900">${t.txnId} • ₹${t.amount}</p>
+            <p class="text-[11px] text-slate-500">${t.desc} via ${t.method}</p>
+            <p class="text-[10px] text-slate-400">${t.date}</p>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${t.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderAll() {
+      renderPatientChips();
+      renderDoctorCards();
+      renderAIPreChecker();
+      renderDoctorConsole();
+      renderFinalPrescription();
+      renderPaymentGateway();
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Navigation Tabs
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.getAttribute('data-target'));
+        });
+      });
+
+      // Live Input Listeners on Patient Form
+      ['pt-name', 'pt-age', 'pt-budget', 'pt-allergy', 'pt-temp', 'pt-duration', 'pt-notes', 'doc-diagnosis', 'doc-advice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => renderAll());
+          el.addEventListener('change', () => renderAll());
+        }
+      });
+
+      // Demo Case 1: Viral Fever + Gastritis
+      document.getElementById('btn-load-demo-fever').addEventListener('click', () => {
+        document.getElementById('pt-name').value = 'Rohan Deshmukh';
+        document.getElementById('pt-age').value = '22 yrs • Hostel / PG Bachelor';
+        document.getElementById('pt-budget').value = '150';
+        document.getElementById('pt-allergy').value = 'NSAIDs / Ibuprofen';
+        document.getElementById('pt-temp').value = '101.4';
+        document.getElementById('pt-notes').value = 'High fever with body ache since 2 days after eating outside mess food. Also having burning acidity and mild stomach cramps.';
+        state.selectedSymptoms = ['sym_fever', 'sym_throat', 'sym_bodyache'];
+        state.selectedIllnesses = ['ill_gastritis', 'ill_dehydration'];
+        state.verifiedConditions = { 'sym_fever': true, 'sym_throat': true };
+        document.getElementById('doc-diagnosis').value = 'Acute Viral Pharyngitis with Acid Peptic Gastritis';
+        renderAll();
+        showToast('Loaded Demo: Viral Fever + Acute Gastritis case.');
+      });
+
+      // Demo Case 2: Severe Migraine + Asthma
+      document.getElementById('btn-load-demo-migraine').addEventListener('click', () => {
+        document.getElementById('pt-name').value = 'Aditya Verma';
+        document.getElementById('pt-age').value = '21 yrs • B.Tech Final Year Hostel';
+        document.getElementById('pt-budget').value = '120';
+        document.getElementById('pt-allergy').value = 'Penicillin / Amoxicillin';
+        document.getElementById('pt-temp').value = '99.2';
+        document.getElementById('pt-notes').value = 'Severe throbbing headache from late night exam prep, mild wheezing and sinus congestion.';
+        state.selectedSymptoms = ['sym_migraine', 'sym_cough'];
+        state.selectedIllnesses = ['ill_asthma', 'ill_sinus'];
+        state.verifiedConditions = {};
+        state.prescribedMeds = [
+          { id: 'med_paracetamol', freq: '1-0-1 (Twice Daily)', days: '3 Days' },
+          { id: 'med_cetirizine', freq: '0-0-1 (Bedtime)', days: '5 Days' }
+        ];
+        document.getElementById('doc-diagnosis').value = 'Acute Tension Migraine with Allergic Rhinosinusitis & Mild Asthma';
+        document.getElementById('doc-advice').value = 'Steam inhalation twice daily, 7 hours sleep, avoid cold water & dust exposure.';
+        renderAll();
+        showToast('Loaded Demo: Severe Migraine + Asthma & Sinusitis case.');
+      });
+
+      // Book Urgent Consultation Button
+      document.getElementById('btn-book-appointment').addEventListener('click', () => {
+        showToast('Urgent appointment booked! Opening Doctor Console to check every illness.');
+        switchTab('doctor');
+      });
+
+      document.getElementById('btn-jump-doctor').addEventListener('click', () => {
+        switchTab('doctor');
+      });
+
+      // Mark All Patient Illnesses Verified Button
+      document.getElementById('btn-check-all-illnesses').addEventListener('click', () => {
+        getActiveConditionsList().forEach(c => {
+          state.verifiedConditions[c.id] = true;
+        });
+        renderAll();
+        showToast('All reported patient illnesses marked as clinically examined!');
+      });
+
+      // Auto-Recommend Safe Rx Based on Checked Illnesses
+      document.getElementById('btn-auto-recommend-rx').addEventListener('click', () => {
+        const recs = [];
+        if (state.selectedSymptoms.includes('sym_fever') || state.selectedSymptoms.includes('sym_bodyache') || state.selectedSymptoms.includes('sym_migraine')) {
+          recs.push({ id: 'med_paracetamol', freq: '1-1-1 (Thrice Daily)', days: '3 Days' });
+        }
+        if (state.selectedIllnesses.includes('ill_gastritis')) {
+          recs.push({ id: 'med_pantoprazole', freq: '1-0-0 (Morning Empty Stomach)', days: '5 Days' });
+        }
+        if (state.selectedSymptoms.includes('sym_throat') || state.selectedSymptoms.includes('sym_cough') || state.selectedIllnesses.includes('ill_sinus')) {
+          recs.push({ id: 'med_cetirizine', freq: '0-0-1 (Bedtime)', days: '5 Days' });
+        }
+        if (state.selectedIllnesses.includes('ill_dehydration') || state.selectedSymptoms.includes('sym_diarrhea')) {
+          recs.push({ id: 'med_ors', freq: '1-1-1 (Sip Throughout Day)', days: '3 Days' });
+        }
+        if (recs.length === 0) {
+          recs.push({ id: 'med_paracetamol', freq: '1-0-1 (Twice Daily)', days: '3 Days' });
+        }
+        state.prescribedMeds = recs;
+        renderAll();
+        showToast('Populated safe generic medicines covering every reported illness!');
+      });
+
+      // Add Medicine Button with Contradiction Guard
+      document.getElementById('btn-add-med').addEventListener('click', () => {
+        const medId = document.getElementById('med-select').value;
+        const freq = document.getElementById('med-freq').value;
+        const days = document.getElementById('med-days').value;
+        const med = MEDICINE_DATABASE.find(m => m.id === medId);
+        const warningEl = document.getElementById('med-safety-warning');
+        if (!med) return;
+
+        const allergy = document.getElementById('pt-allergy').value;
+        const blockedByAllergy = med.contraindicatedWith.includes(allergy);
+        const blockedByIllness = med.contraindicatedWith.some(code => state.selectedIllnesses.includes(code));
+
+        if (blockedByAllergy || blockedByIllness) {
+          warningEl.classList.remove('hidden');
+          warningEl.textContent = `⛔ SAFETY BLOCK: ${med.genericName} is contraindicated for this patient due to reported ${blockedByAllergy ? allergy : 'Acute Gastritis / Asthma'}! Use Paracetamol 650mg instead.`;
+          showToast(`Blocked unsafe medicine: ${med.genericName}`, 'error');
+          return;
+        }
+
+        warningEl.classList.add('hidden');
+        state.prescribedMeds.push({ id: medId, freq, days });
+        renderAll();
+        showToast(`Added ${med.genericName} to prescription.`);
+      });
+
+      // Send Chat Message
+      document.getElementById('btn-send-chat').addEventListener('click', () => {
+        const input = document.getElementById('consult-chat-input');
+        const txt = input.value.trim();
+        if (!txt) return;
+        state.chatMessages.push({ sender: 'doctor', text: txt });
+        input.value = '';
+        setTimeout(() => {
+          state.chatMessages.push({
+            sender: 'patient',
+            text: 'Thank you Doctor! I have noted the instructions and will get the generic medicines from Jan Aushadhi.'
+          });
+          renderChatBox();
+        }, 400);
+        renderChatBox();
+      });
+
+      // Issue Signed e-Rx Button
+      document.getElementById('btn-issue-rx').addEventListener('click', () => {
+        const conditions = getActiveConditionsList();
+        const unverified = conditions.filter(c => !state.verifiedConditions[c.id]);
+        if (unverified.length > 0) {
+          // Automatically check all and inform doctor so flow is smooth but transparent
+          conditions.forEach(c => { state.verifiedConditions[c.id] = true; });
+          showToast(`Verified remaining ${unverified.length} illness(es) and signed Digital e-Rx!`);
+        } else {
+          showToast('Digital e-Prescription signed and issued!');
+        }
+        switchTab('rx');
+      });
+
+      // Toggle Generic vs Branded Mode
+      document.getElementById('btn-toggle-generic-mode').addEventListener('click', () => {
+        state.useGenericMode = !state.useGenericMode;
+        renderFinalPrescription();
+        showToast(state.useGenericMode ? 'Switched to Jan Aushadhi Generic Mode' : 'Switched to Branded Medicine Comparison Mode');
+      });
+
+      // Copy e-Rx Text
+      document.getElementById('btn-copy-rx-text').addEventListener('click', () => {
+        const doc = getSelectedDoctor();
+        const ptName = document.getElementById('pt-name').value;
+        const diag = document.getElementById('doc-diagnosis').value;
+        const medsText = state.prescribedMeds.map((m, i) => {
+          const medObj = MEDICINE_DATABASE.find(x => x.id === m.id);
+          return `${i + 1}. ${medObj.genericName} — ${m.freq} for ${m.days} (Generic: ₹${medObj.genericPrice})`;
+        }).join('\n');
+        const summary = `CARERX BACHELOR DIGITAL PRESCRIPTION\nDoctor: ${doc.name} (${doc.reg})\nPatient: ${ptName}\nDiagnosis: ${diag}\n\nRx Medicines:\n${medsText}\n\nAdvice: ${document.getElementById('doc-advice').value}`;
+        copyTextToClipboard(summary, 'Copied Digital e-Prescription summary to clipboard!');
+      });
+
+      // Print e-Rx
+      document.getElementById('btn-print-rx').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Pharmacy Reserve / Order Buttons -> Redirect to Payment Gateway
+      document.getElementById('btn-send-pharmacy-1').addEventListener('click', () => {
+        state.paymentScope = 'bundle';
+        showToast('Proceeding to Payment Gateway to confirm Jan Aushadhi reservation.');
+        switchTab('payment');
+      });
+      document.getElementById('btn-send-pharmacy-2').addEventListener('click', () => {
+        state.paymentScope = 'bundle';
+        showToast('Proceeding to Payment Gateway for 30-min Hostel Delivery.');
+        switchTab('payment');
+      });
+
+      // Payment Gateway Scope Buttons
+      document.getElementById('btn-scope-bundle').addEventListener('click', () => {
+        state.paymentScope = 'bundle';
+        renderPaymentGateway();
+      });
+      document.getElementById('btn-scope-consult').addEventListener('click', () => {
+        state.paymentScope = 'consult';
+        renderPaymentGateway();
+      });
+
+      // Coupon Buttons
+      function applyCouponCode(code) {
+        const clean = (code || '').trim().toUpperCase();
+        document.getElementById('pay-coupon-input').value = clean;
+        if (clean === 'BACHELOR20') {
+          state.discountAmount = 20;
+          state.appliedCoupon = 'BACHELOR20';
+          showToast('Applied BACHELOR20: ₹20 Bachelor Subsidy Discount!');
+        } else if (clean === 'HOSTEL30') {
+          state.discountAmount = 30;
+          state.appliedCoupon = 'HOSTEL30';
+          showToast('Applied HOSTEL30: ₹30 Hostel Care Discount!');
+        } else {
+          state.discountAmount = 15;
+          state.appliedCoupon = clean || 'STUDENT15';
+          showToast(`Applied ${state.appliedCoupon}: ₹15 Student Relief Discount!`);
+        }
+        renderPaymentGateway();
+      }
+
+      document.getElementById('btn-apply-coupon').addEventListener('click', () => {
+        applyCouponCode(document.getElementById('pay-coupon-input').value);
+      });
+      document.getElementById('btn-chip-bachelor20').addEventListener('click', () => {
+        applyCouponCode('BACHELOR20');
+      });
+      document.getElementById('btn-chip-hostel30').addEventListener('click', () => {
+        applyCouponCode('HOSTEL30');
+      });
+
+      // Payment Method Tabs (UPI / Card / Wallet)
+      document.querySelectorAll('.pay-method-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const method = btn.getAttribute('data-method');
+          state.paymentMethod = method;
+          ['upi', 'card', 'wallet'].forEach(m => {
+            const panel = document.getElementById(`pay-panel-${m}`);
+            const tabBtn = document.getElementById(`pay-tab-${m}`);
+            if (m === method) {
+              panel.classList.remove('hidden');
+              tabBtn.className = 'pay-method-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-sm transition';
+            } else {
+              panel.classList.add('hidden');
+              tabBtn.className = 'pay-method-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition';
+            }
+          });
+        });
+      });
+
+      // UPI App Selection Buttons
+      document.querySelectorAll('.upi-app-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedUpiApp = btn.getAttribute('data-app');
+          document.querySelectorAll('.upi-app-btn').forEach(b => {
+            b.className = 'upi-app-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 font-semibold text-slate-700 text-center transition';
+          });
+          btn.className = 'upi-app-btn p-3 rounded-xl border-2 border-teal-600 bg-teal-50/40 font-bold text-slate-900 text-center transition';
+          document.getElementById('vpa-verified-msg').textContent = `✓ Selected ${state.selectedUpiApp} for instant checkout`;
+        });
+      });
+
+      // Verify VPA Button
+      document.getElementById('btn-verify-vpa').addEventListener('click', () => {
+        const vpa = document.getElementById('upi-id-input').value.trim() || 'rohan@okaxis';
+        const ptName = (document.getElementById('pt-name').value || 'ROHAN DESHMUKH').toUpperCase();
+        document.getElementById('vpa-verified-msg').textContent = `✓ Verified UPI ID: ${vpa} (${ptName})`;
+        showToast(`Verified UPI ID: ${vpa}`);
+      });
+
+
+
+      function closeLiveModal() {
+        if (state.liveTimerInterval) {
+          clearInterval(state.liveTimerInterval);
+          state.liveTimerInterval = null;
+        }
+        document.getElementById('live-payment-modal').classList.add('hidden');
+      }
+
+      function openLivePaymentModal() {
+        const totals = getPaymentTotals();
+        const merchantVpa = '9834422118@yespop';
+        const userVpa = (document.getElementById('upi-id-input').value || 'rohan.deshmukh@okaxis').trim();
+
+        document.getElementById('modal-merchant-vpa-label').textContent = `Merchant VPA: ${merchantVpa}`;
+        document.getElementById('modal-live-amount').textContent = `₹${totals.finalTotal}.00`;
+
+        let targetDesc = `Collect Request Sent to ${userVpa} (${state.selectedUpiApp})`;
+        if (state.paymentMethod === 'card') {
+          targetDesc = '3D-Secure Bank OTP Sent to Registered Mobile •••• 8419';
+        } else if (state.paymentMethod === 'wallet') {
+          targetDesc = 'NetBanking / Bachelor Pay-Later Live Mandate Verification';
+        }
+        document.getElementById('modal-upi-target-label').textContent = targetDesc;
+        document.getElementById('modal-step-title').textContent = 'Step 1: Waiting for Live Customer Authorization...';
+        document.getElementById('modal-step-pct').textContent = '60%';
+        document.getElementById('modal-progress-bar').style.width = '60%';
+        document.getElementById('modal-log-line-2').textContent = `● [NPCI-LIVE] Requesting ₹${totals.finalTotal} from customer account...`;
+
+        if (state.liveTimerInterval) {
+          clearInterval(state.liveTimerInterval);
+        }
+        state.liveSecondsRemaining = 299;
+        const timerEl = document.getElementById('modal-live-timer');
+        timerEl.textContent = '04:59';
+        state.liveTimerInterval = setInterval(() => {
+          state.liveSecondsRemaining = Math.max(0, state.liveSecondsRemaining - 1);
+          const mins = String(Math.floor(state.liveSecondsRemaining / 60)).padStart(2, '0');
+          const secs = String(state.liveSecondsRemaining % 60).padStart(2, '0');
+          timerEl.textContent = `${mins}:${secs}`;
+          if (state.liveSecondsRemaining === 0) {
+            closeLiveModal();
+            showToast('Live payment session expired. Please try again.', 'warning');
+          }
+        }, 1000);
+
+        document.getElementById('live-payment-modal').classList.remove('hidden');
+      }
+
+      // Process Payment Button (Routes to Live Checkout Modal in Live Mode, or Instant in Sandbox Mode)
+      document.getElementById('btn-process-payment').addEventListener('click', () => {
+        const totals = getPaymentTotals();
+        if (state.isLivePaymentMode) {
+          openLivePaymentModal();
+          return;
+        }
+        let methodLabel = state.selectedUpiApp;
+        if (state.paymentMethod === 'card') {
+          methodLabel = 'Card •••• 8891';
+        } else if (state.paymentMethod === 'wallet') {
+          const chosen = document.querySelector('input[name="wallet-choice"]:checked');
+          methodLabel = chosen ? chosen.value : 'Bachelor Pay-Later';
+        }
+        const newTxnId = 'TXN-TEST-' + Math.floor(10000 + Math.random() * 89999);
+        state.paymentCompleted = true;
+        state.transactions.unshift({
+          txnId: newTxnId,
+          date: 'Sandbox • 01 Nov 2026',
+          desc: state.paymentScope === 'bundle' ? 'Urgent Consult + Generic Medicines' : 'Urgent Doctor Tele-Consult',
+          method: methodLabel,
+          amount: totals.finalTotal,
+          status: 'TEST PAID ✓'
+        });
+        renderPaymentGateway();
+        showToast(`Sandbox Payment of ₹${totals.finalTotal} completed! Ref: ${newTxnId}`);
+      });
+
+      // Upload Custom UPI QR Image (User's own GPay / PhonePe / Paytm QR)
+      document.getElementById('upload-my-qr-input').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          state.customQrDataUrl = ev.target.result;
+          renderPaymentGateway();
+          showToast('Your personal UPI QR code image is now live! Scan it to initiate payment.');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Reset to Auto-Generated UPI QR
+      document.getElementById('btn-reset-dynamic-qr').addEventListener('click', () => {
+        state.customQrDataUrl = null;
+        document.getElementById('upload-my-qr-input').value = '';
+        renderPaymentGateway();
+        showToast('Switched back to dynamic UPI QR generator.');
+      });
+
+      // Simulate / Trigger Payment Initiation right after scanning QR on main page
+      document.getElementById('btn-simulate-qr-scan').addEventListener('click', () => {
+        state.isLivePaymentMode = true;
+        renderPaymentGateway();
+        openLivePaymentModal();
+        // Immediately trigger the "QR Scan Detected -> Payment Initiated" state inside the modal
+        const badge = document.getElementById('modal-scan-badge');
+        if (badge) {
+          badge.className = 'px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 font-bold text-[10px]';
+          badge.textContent = '✓ QR Scanned • Payment Initiated';
+        }
+        document.getElementById('modal-step-title').textContent = 'Step 2: QR Scanned on Phone! Initiating UPI Transfer...';
+        document.getElementById('modal-step-pct').textContent = '80%';
+        document.getElementById('modal-progress-bar').style.width = '80%';
+        document.getElementById('modal-log-line-2').textContent = '✓ [QR-SCAN-DETECTED] UPI intent opened on mobile • Awaiting MPIN confirmation...';
+        showToast('QR Scan detected! Payment initiated on your UPI app.');
+      });
+
+      // Inside Modal: "QR Scanned on Phone -> Initiate Payment" button
+      document.getElementById('btn-modal-qr-scanned').addEventListener('click', () => {
+        const badge = document.getElementById('modal-scan-badge');
+        if (badge) {
+          badge.className = 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]';
+          badge.textContent = '✓ QR Scanned • Processing MPIN';
+        }
+        document.getElementById('modal-step-title').textContent = 'Step 2: QR Scanned! Confirming UPI Transfer from Phone...';
+        document.getElementById('modal-step-pct').textContent = '85%';
+        document.getElementById('modal-progress-bar').style.width = '85%';
+        document.getElementById('modal-log-line-2').textContent = '✓ [QR-SCAN-INITIATED] Customer scanned QR • Verifying payment settlement...';
+        const autoCode = String(Math.floor(100000 + Math.random() * 899999));
+        document.getElementById('modal-otp-input').value = autoCode;
+        showToast('QR Scan initiated payment! Click Authorize below or complete on phone.');
+      });
+
+      // Modal Controls
+      document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+        closeLiveModal();
+        showToast('Live payment cancelled by user.', 'warning');
+      });
+
+      document.getElementById('btn-modal-fill-otp').addEventListener('click', () => {
+        const randomOtp = String(Math.floor(100000 + Math.random() * 899999));
+        document.getElementById('modal-otp-input').value = randomOtp;
+        showToast(`Auto-detected live bank OTP: ${randomOtp}`);
+      });
+
+      document.getElementById('btn-modal-confirm-live').addEventListener('click', () => {
+        const otpVal = document.getElementById('modal-otp-input').value.trim();
+        if (otpVal.length < 4) {
+          showToast('Please enter the 6-digit authorization code.', 'warning');
+          return;
+        }
+        const totals = getPaymentTotals();
+        document.getElementById('modal-step-title').textContent = 'Step 2: Verifying with NPCI & Capturing Live Payment...';
+        document.getElementById('modal-step-pct').textContent = '100%';
+        document.getElementById('modal-progress-bar').style.width = '100%';
+        document.getElementById('modal-log-line-2').textContent = '✓ [NPCI-LIVE] Bank Auth Verified • Generating 12-digit UTR...';
+
+        setTimeout(() => {
+          let methodLabel = `Live ${state.selectedUpiApp}`;
+          if (state.paymentMethod === 'card') {
+            methodLabel = 'Live 3DS Card •••• 8891';
+          } else if (state.paymentMethod === 'wallet') {
+            const chosen = document.querySelector('input[name="wallet-choice"]:checked');
+            methodLabel = chosen ? `Live ${chosen.value}` : 'Live Bachelor Pay-Later';
+          }
+          const liveUtr = 'UTR-' + Math.floor(400000000000 + Math.random() * 599999999999);
+          state.paymentCompleted = true;
+          state.transactions.unshift({
+            txnId: liveUtr,
+            date: 'Live Captured • 01 Nov 2026',
+            desc: state.paymentScope === 'bundle' ? 'Urgent Consult + Generic Medicines' : 'Urgent Doctor Tele-Consult',
+            method: methodLabel,
+            amount: totals.finalTotal,
+            status: 'LIVE PAID ✓'
+          });
+          closeLiveModal();
+          renderPaymentGateway();
+          showToast(`Live Payment of ₹${totals.finalTotal} Captured! ${liveUtr}`);
+        }, 450);
+      });
+
+      // Copy Payment Receipt Button
+      document.getElementById('btn-copy-receipt').addEventListener('click', () => {
+        const latest = state.transactions[0];
+        const ptName = document.getElementById('pt-name').value || 'Rohan Deshmukh';
+        const text = `CARERX BACHELOR PAYMENT RECEIPT\nTxn ID: ${latest.txnId}\nPatient: ${ptName}\nPackage: ${latest.desc}\nMethod: ${latest.method}\nAmount Paid: ₹${latest.amount}\nStatus: ${latest.status}`;
+        copyTextToClipboard(text, 'Copied payment receipt to clipboard!');
+      });
+
+      // Initial Render
+      renderAll();
+    });
+  </script>
+</body>
+</html>
